@@ -1,7 +1,39 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## Major version update
+
+1. Swift4 version update. [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/476) by *Simple4, Steven_Cheung and lfarah*
+
 ## Unreleased
+
+1. **Array**
+   - `public subscript (safe index: Index)` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/445) by *lfarah*
+
+2. **Double**
+   - `**?(lhs:Double, rhs:Double)` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/443) by *Khalian*
+
+3. **NSAttributedString**
+   - `+ (left: NSAttributedString, right: NSAttributedString) -> NSAttributedString` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/446) by *lfarah*
+
+4. **UILabel**
+   - `public convenience init(font: UIFont, color: UIColor, alignment: NSTextAlignment)` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/441) by *icefall*
+
+5. **UserDefaults**
+   - `public func date(forKey key: String) -> Date?` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/459) by *Khalian*
+   
+6. **Date**
+    - `public func timePassed() -> TimePassed` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/486) by *110100110101*
+
+7. **Hashable**
+    - `public var hashString: String` in [[PR]](https://github.com/goktugyil/EZSwiftExtensions/pull/485) by *rugheid*
+
+## [Release 1.10]
+
+### New platform added. 
+
+1. **MacOSX 10.11**
 
 ### Added extensions 
 

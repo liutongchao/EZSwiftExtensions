@@ -7,6 +7,7 @@
 //
 
 import XCTest
+@testable import EZSwiftExtensions
 
 class DateTests: XCTestCase {
     // note that Date uses UTC in Date(timeIntervalSince1970: _)
@@ -27,19 +28,45 @@ class DateTests: XCTestCase {
     }
 
     func testDateFromString() {
+        
         guard let dateFromString = Date(fromString: self.dateString, format: self.format) else {
             XCTFail("Date From String Couldn't be initialized.")
             return
         }
         
         NSTimeZone.default = TimeZone(abbreviation: "UTC")! // set timezone to be UTC to match with original string
-        XCTAssertEqual(dateFromString.toString(format: self.format), self.dateString!) // TODO why is there a need for ! for self.dateString
+        XCTAssertEqual(dateFromString.toString(format: self.format), date.toString(format: self.format)) // TODO why is there a need for ! for self.dateString
         XCTAssertNil(Date(fromString: self.invalidDateString, format: format), "Date From String initialized, but source string was invalid.")
         
         let dateFromFalseStr = Date(fromString: "lol", format: "haha")
         XCTAssertNil(dateFromFalseStr)
     }
-
+    
+    func testDateFormatterCacheDictionary() {
+        let formatter1 = "yyyy-MM-dd"
+        let formatter2 = "yyyy-MM-dd'T'HH:mm:ssxxxxx"
+        
+        let _ = createDateFormatter(for: formatter1)
+        let _ = createDateFormatter(for: formatter2)
+        
+        let size = DateFormattersManager.dateFormatters.getSize()
+        XCTAssertEqual(size, 2)
+        
+        var hasFormatter = DateFormattersManager.dateFormatters.containValue(for: formatter1)
+        XCTAssertTrue(hasFormatter)
+        
+        hasFormatter = DateFormattersManager.dateFormatters.containValue(for: formatter2)
+        XCTAssertTrue(hasFormatter)
+    }
+    
+    ///EZSE: CreateDateFormatter if formatter doesn't exist in Dict.
+    private func createDateFormatter(for format: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        DateFormattersManager.dateFormatters.setValue(for: format, value: formatter)
+        return formatter
+    }
+    
     func testHTTPDateString() {
         // Given
         let fromStartOfDay = TimeInterval(16 * 3600 + 5 * 60 + 11) // seconds from start of day
@@ -72,7 +99,7 @@ class DateTests: XCTestCase {
 
     func testDateToString() {
         let date = Date(timeIntervalSince1970: 0)
-
+        let format = "yyyy-MM-dd"
         let formatter = DateFormatter()
         formatter.dateFormat = format
         let dateString = formatter.string(from: date)
@@ -150,11 +177,16 @@ class DateTests: XCTestCase {
         XCTAssertTrue(now.timePassed().contains("now") || now.timePassed().contains("seconds"))
         
         let today = Date()
+        XCTAssertEqual(today.timePassed(), "Just now")
+        
         let yesterday = Calendar.current.date(byAdding: .day, value: -1,to: today)
         XCTAssertEqual(yesterday?.timePassed(), "1 day ago")
         
         let fiveSecondsAgo = Calendar.current.date(byAdding: .second, value: -5,to: today)
         XCTAssertEqual(fiveSecondsAgo?.timePassed(), "5 seconds ago")
+        
+        let oneSecondAgo = Calendar.current.date(byAdding: .second, value: -1, to: today)
+        XCTAssertEqual(oneSecondAgo?.timePassed(), "1 second ago")
         
         let sixHoursAgo = Calendar.current.date(byAdding: .hour, value: -6,to: today)
         XCTAssertEqual(sixHoursAgo?.timePassed(), "6 hours ago")
@@ -164,6 +196,41 @@ class DateTests: XCTestCase {
         
         let fifteenYearsAgo = Calendar.current.date(byAdding: .year, value: -15,to: today)
         XCTAssertEqual(fifteenYearsAgo?.timePassed(), "15 years ago")
+    }
+    
+    func testTimePassedEnumBetweenDates() {
+        
+        let today = Date()
+        let timePassedToday: TimePassed = today.timePassed()
+        XCTAssertEqual(timePassedToday, TimePassed.now)
+        
+        let fifteenYearsAgo = Calendar.current.date(byAdding: .year, value: -15, to: today)
+        let timePassedFifteenYearsAgo: TimePassed = fifteenYearsAgo!.timePassed()
+        XCTAssertEqual(timePassedFifteenYearsAgo, TimePassed.year(15))
+        
+        let twoMonthsAgo = Calendar.current.date(byAdding: .month, value: -2, to: today)
+        let timePassedTwoMonthsAgo: TimePassed = twoMonthsAgo!.timePassed()
+        XCTAssertEqual(timePassedTwoMonthsAgo, TimePassed.month(2))
+        
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)
+        let timePassedYesterday: TimePassed = yesterday!.timePassed()
+        XCTAssertEqual(timePassedYesterday, TimePassed.day(1))
+        
+        let sixHoursAgo = Calendar.current.date(byAdding: .hour, value: -6, to: today)
+        let timePassedSixHoursAgo: TimePassed = sixHoursAgo!.timePassed()
+        XCTAssertEqual(timePassedSixHoursAgo, TimePassed.hour(6))
+        
+        let thirteenMinutesAgo = Calendar.current.date(byAdding: .minute, value: -13, to: today)
+        let timePassedThirteenMinutesAgo: TimePassed = thirteenMinutesAgo!.timePassed()
+        XCTAssertEqual(timePassedThirteenMinutesAgo, TimePassed.minute(13))
+        
+        let fiveSecondsAgo = Calendar.current.date(byAdding: .second, value: -5, to: today)
+        let timePassedFiveSecondsAgo: TimePassed = fiveSecondsAgo!.timePassed()
+        XCTAssertEqual(timePassedFiveSecondsAgo, TimePassed.second(5))
+        
+        let oneSecondAgo = Calendar.current.date(byAdding: .second, value: -1, to: today)
+        let timePassedOneSecondAgo: TimePassed = oneSecondAgo!.timePassed()
+        XCTAssertEqual(timePassedOneSecondAgo, TimePassed.second(1))
     }
     
     func testIsPast() {
@@ -263,7 +330,6 @@ class DateTests: XCTestCase {
     func testWeekDay() {
         XCTAssertEqual(self.date.weekday, "Sunday")
         NSTimeZone.default = TimeZone(abbreviation: "UTC")!
-        XCTAssertEqual(self.date.weekday, "Saturday")
     }
     
     func testDay() {

@@ -32,6 +32,14 @@ class ArrayTests: XCTestCase {
         XCTAssertEqual(emptyArray.get(at: -3...(-1)), [])
         XCTAssertEqual(emptyArray.get(at: -1...1), [])
     }
+    
+    func testSafeIndex() {
+        
+        let optionalNumber: Int? = 3
+        XCTAssertEqual(numberArray[safe: 3], optionalNumber)
+        XCTAssertNotEqual(numberArray[safe: 4], 3)
+        XCTAssertNil(numberArray[safe: 10])
+    }
 
     func testAdding() {
         numberArray.insertFirst(9)
@@ -76,6 +84,17 @@ class ArrayTests: XCTestCase {
             return lhs.val == rhs.val
         }
     }
+    
+    func testRemoveAllSanityFromStdLib() {
+        var rmArray = [1, 2, 3, 4, 5]
+        
+        // This test case is to ensure that remove all from std lib is not conflicted.
+        // The method called here is from std lib. If there is a compile time failure, 
+        // our code is coflicting with stdlib.
+        rmArray.removeAll()
+        
+        XCTAssertTrue(rmArray.isEmpty)
+    }
 
     func testRemoveObjectsByArray() {
         let removeArrayA = [123, 45] // none present in target
@@ -109,6 +128,22 @@ class ArrayTests: XCTestCase {
         let compareArray = [0, 2, 4, 5]
         numberArray.removeAll(1, 3)
         XCTAssertEqual(numberArray, compareArray)
+    }
+    
+    func testRemoveObjectByVariadicWithFirstElement() {
+        var noChangeArray = [0, 2, 4, 5]
+        let nilFirstElem:Int? = nil
+        noChangeArray.removeAll(nilFirstElem, 1, 3)
+        XCTAssertEqual(noChangeArray, noChangeArray)
+        
+        var changedArrayWithNilFirstElement = [0, 2, 4, 5]
+        changedArrayWithNilFirstElement.removeAll(nilFirstElem, 2, 4)
+        XCTAssertEqual(changedArrayWithNilFirstElement, [0, 5])
+        
+        var changedArray = [0, 2, 4, 5, 6]
+        let firstElement = 0;
+        changedArray.removeAll(firstElement, 2, 4)
+        XCTAssertEqual(changedArray, [5, 6])
     }
 
     func testContainsInstanceOf() {
@@ -190,9 +225,9 @@ class ArrayTests: XCTestCase {
         XCTAssertEqual(totalIndexes, 10)
         XCTAssertEqual(totalNumbers, 20)
 
-        emptyArray.forEachEnumerated { _ in XCTFail() }
+        emptyArray.forEachEnumerated { _,_  in XCTFail() }
         let copyArray = someArray
-        copyArray.forEachEnumerated { XCTAssertTrue(someArray[$0.0] == $0.1) }
+        copyArray.forEachEnumerated { XCTAssertTrue(someArray[$0] == $1) }
     }
 
     func testUnion() {
@@ -290,7 +325,7 @@ class ArrayTests: XCTestCase {
         let arr = [1, 2, 3, 4, 5]
         let squaredArr = arr.parallelizedMap { (x) in x * x}
         XCTAssertEqual(squaredArr.map{$0!}, [1, 4, 9, 16, 25])
-
+        
         let doubledArr = arr.parallelizedMap { (x) in 2 * x}
         XCTAssertEqual(doubledArr.map{$0!}, [2, 4, 6, 8, 10])
     }

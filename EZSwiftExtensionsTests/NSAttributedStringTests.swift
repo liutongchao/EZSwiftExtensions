@@ -14,7 +14,7 @@ import EZSwiftExtensions
 class NSAttributedStringTests: XCTestCase {
     
     let testAttributedString = NSAttributedString(string: "Swift Attributed String",
-                                                  attributes: [String:Any]())
+                                                  attributes: [:])
     override func setUp() {
         super.setUp()
     }
@@ -30,7 +30,7 @@ class NSAttributedStringTests: XCTestCase {
         let boldString = testAttributedString.bold()
         let newAttributesSeen = boldString.attributes(at: 0, longestEffectiveRange: nil, in: NSMakeRange(0, boldString.length))
         
-        XCTAssertEqual(newAttributesSeen[NSFontAttributeName] as! UIFont, UIFont.boldSystemFont(ofSize: UIFont.systemFontSize))
+        XCTAssertEqual(newAttributesSeen[NSAttributedStringKey.font] as! UIFont, UIFont.boldSystemFont(ofSize: UIFont.systemFontSize))
     }
     
     #endif
@@ -41,7 +41,7 @@ class NSAttributedStringTests: XCTestCase {
         let underLineString = testAttributedString.underline()
         let newAttributesSeen = underLineString.attributes(at: 0, longestEffectiveRange: nil, in: NSMakeRange(0, underLineString.length))
         
-        XCTAssertEqual(newAttributesSeen[NSUnderlineStyleAttributeName] as! Int, NSUnderlineStyle.styleSingle.rawValue)
+        XCTAssertEqual(newAttributesSeen[NSAttributedStringKey.underlineStyle] as! Int, NSUnderlineStyle.styleSingle.rawValue)
     }
     
     #endif
@@ -52,14 +52,14 @@ class NSAttributedStringTests: XCTestCase {
         let italicString = testAttributedString.italic()
         let newAttributesSeen = italicString.attributes(at: 0, longestEffectiveRange: nil, in: NSMakeRange(0, italicString.length))
         
-        XCTAssertEqual(newAttributesSeen[NSFontAttributeName] as! UIFont, UIFont.italicSystemFont(ofSize: UIFont.systemFontSize))
+        XCTAssertEqual(newAttributesSeen[NSAttributedStringKey.font] as! UIFont, UIFont.italicSystemFont(ofSize: UIFont.systemFontSize))
     }
     
     func testStrikethrough() {
         let strikeThroughString = testAttributedString.strikethrough()
         let newAttributesSeen = strikeThroughString.attributes(at: 0, longestEffectiveRange: nil, in: NSMakeRange(0, strikeThroughString.length))
         
-        XCTAssertEqual(newAttributesSeen[NSStrikethroughStyleAttributeName] as! NSNumber, NSNumber(value: NSUnderlineStyle.styleSingle.rawValue as Int))
+        XCTAssertEqual(newAttributesSeen[NSAttributedStringKey.strikethroughStyle] as! NSNumber, NSNumber(value: NSUnderlineStyle.styleSingle.rawValue as Int))
     }
     
     #endif
@@ -71,18 +71,33 @@ class NSAttributedStringTests: XCTestCase {
         let coloredString = testAttributedString.color(grayColor)
         let newAttributesSeen = coloredString.attributes(at: 0, longestEffectiveRange: nil, in: NSMakeRange(0, coloredString.length))
         
-        XCTAssertEqual(newAttributesSeen[NSForegroundColorAttributeName] as! UIColor, grayColor)
+        XCTAssertEqual(newAttributesSeen[NSAttributedStringKey.foregroundColor] as! UIColor, grayColor)
     }
     
     func testAppending() {
         
-        var string = NSAttributedString(string: "EZSwiftExtensions")
+        let string = NSAttributedString(string: "EZSwiftExtensions")
         let string2 = NSAttributedString(string: " is Awesome!")
-        
-        string += string2
         let expected = NSAttributedString(string: "EZSwiftExtensions is Awesome!")
+        let expected2 = NSAttributedString(string: "Hello. How are you?")
 
-        XCTAssertEqual(string, expected)
+        // Appending
+        var result1 = NSAttributedString()
+        result1 += string
+        result1 += string2
+        XCTAssertEqual(result1, expected)
+
+        // Adding
+        let result2 = string + string2
+        XCTAssertEqual(result2, expected)
+        
+        var attr = NSAttributedString(string: "Hello. ")
+        let attr2 = NSAttributedString(string: "How ")
+        let attr3 = NSAttributedString(string: "are ")
+        let attr4 = NSAttributedString(string: "you?")
+        
+        attr += ((attr2 + attr3) + attr4)
+        XCTAssertEqual(attr, expected2)
     }
     
     #endif
