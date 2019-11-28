@@ -15,10 +15,6 @@ extension CGFloat {
     /// EZSE: Return the central value of CGFloat.
     public var center: CGFloat { return (self / 2) }
 
-    @available(*, deprecated: 1.8, renamed: "degreesToRadians")
-    public func toRadians() -> CGFloat {
-        return (.pi * self) / 180.0
-    }
 
     /// EZSwiftExtensions
     public func degreesToRadians() -> CGFloat {
@@ -52,7 +48,7 @@ extension CGFloat {
 
     /// EZSE: Returns a random floating point number between 0.0 and 1.0, inclusive.
     public static func random() -> CGFloat {
-        return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
+        return CGFloat(Float(arc4random()) / Float(0xFFFFFFFF))
     }
 
     /// EZSE: Returns a random floating point number in the range min...max, inclusive.
